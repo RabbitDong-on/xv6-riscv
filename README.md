@@ -18,9 +18,9 @@ add-auto-load-safe-path /home/dg/xv6-riscv/.gdbinit
 gdb-multiarch kernel/kernel
 ```
 ## Combine Vscode with GDB
-实现vscode调试xv6
+实现vscode调试xv6，配置时需要注意.vscode和要编译项目不在一个目录下，因此要调整tasks中cwd和launch中program。
+launch.json：
 ``` json
-// /home/dg/.vscode/launch.json
 {
     "version": "0.2.0",
     "configurations": [
@@ -30,16 +30,18 @@ gdb-multiarch kernel/kernel
             "request": "launch",
             "program": "${workspaceFolder}/xv6-riscv/kernel/kernel",
             "stopAtEntry": true,
-            "cwd": "${workspaceFolder}",//workspackFolder /home/dg
-            "miDebuggerServerAddress": "127.0.0.1:26000", //见.gdbinit 中 target remote xxxx:xx
-            "miDebuggerPath": "/usr/bin/gdb-multiarch", // which gdb-multiarch
+            "cwd": "${workspaceFolder}",
+            "miDebuggerServerAddress": "127.0.0.1:26000", 
+            "miDebuggerPath": "/usr/bin/gdb-multiarch", 
             "MIMode": "gdb",
             "preLaunchTask": "xv6build"
         }
     ]
 }
-
-// /home/dg/.vscode/tasks.json
+```
+tasks.json:
+problemMatcher中指定了从Now run 'gdb' in another window这个位置开始追踪（有时间可以学一下problemMatcher）
+``` json
 {
     "version": "2.0.0",
     "tasks": [
@@ -48,7 +50,6 @@ gdb-multiarch kernel/kernel
             "type": "shell",
             "isBackground": true,
             "command": "make qemu-gdb",
-            //workspackFolder /home/dg
             "options": {
                 "cwd":"${workspaceFolder}/xv6-riscv"
             },
@@ -64,7 +65,6 @@ gdb-multiarch kernel/kernel
                     ],
                     "background": {
                         "beginsPattern": ".*Now run 'gdb' in another window.",
-                        // 要对应编译成功后,一句echo的内容. 此处对应 Makefile Line:170
                         "endsPattern": "."
                     }
                 }
@@ -82,9 +82,8 @@ make clean&&bear -- make qemu
 mv compile_commands.json ../.vscode/
 vim c_cpp_properties.json
 ```
-
+c_cpp_properties.json：
 ``` json
-// /home/dg/.vscode/c_cpp_properties.json
 {
     "configurations": [
         {
